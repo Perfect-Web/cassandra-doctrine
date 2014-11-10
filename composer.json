@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "evseevnn/php-cassandra-binary": "dev-master"
+        "duoshuo/php-cassandra": "dev-master"
     },
     "autoload": {
         "psr-0": {
