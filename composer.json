@@ -1,5 +1,5 @@
 {
-    "name": "Perfect-Web/cassandra-doctrine",
+    "name": "perfect-web/cassandra-doctrine",
     "description": "Cassandra driver for doctrine",
     "minimum-stability": "dev",
     "license": "proprietary",
