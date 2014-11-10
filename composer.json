@@ -1,0 +1,21 @@
+{
+    "name": "Perfect-Web/cassandra-doctrine",
+    "description": "Cassandra driver for doctrine",
+    "minimum-stability": "dev",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Perfect Web Development Team",
+            "email": "office@perfectweb.ro"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "evseevnn/php-cassandra-binary": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "PerfectWeb\\Cassandra": "src/"
+        }
+    }
+}
