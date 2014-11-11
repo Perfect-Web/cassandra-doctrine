@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-0": {
-            "PerfectWeb\\Cassandra\\": "src/Cassandra/"
+            "PerfectWeb\\Cassandra\\": "src/"
         }
     }
 }
