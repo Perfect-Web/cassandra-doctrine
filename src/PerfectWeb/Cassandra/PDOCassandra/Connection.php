@@ -2,32 +2,29 @@
 
 namespace PerfectWeb\Cassandra\PDOCassandra;
 
+use Cassandra\Connection as CassandraConnection;
+use Doctrine\DBAL\Connection as DoctrineConnection;
 
-class Connection {
+class Connection extends DoctrineConnection
+{
 
-	function beginTransaction()
-	{
-		$database->beginBatch();
-	}
+    /**
+     * @param array $nodes
+     * @param \Doctrine\DBAL\Driver $keyspace
+     */
+    function __construct($nodes, $keyspace)
+    {
+        return new CassandraConnection($nodes, $keyspace);
+    }
 
-	function commit()
-	{
-		return false;
-	}
+    public function connect()
+    {
+        return true;
+    }
 
-	function rollBack()
-	{
-		return false;
-	}
+    public function prepare($statement)
+    {
 
-    function lastInsertId()
-	{
-		throw new \RuntimeException('method not implemented');
-	}
-
-    function setAttribute()
-	{
-		return false;
-	}
+    }
 
 }

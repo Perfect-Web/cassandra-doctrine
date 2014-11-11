@@ -14,7 +14,7 @@ class Driver extends MySqlDriver implements BaseDriver
 	 */
 	public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
 	{
-        return new \Cassandra\Connection($params['servers'], $params['dbname']);
+        return new Connection($params['servers'], $params['dbname']);
 	}
 
 	/**
