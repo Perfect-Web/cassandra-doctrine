@@ -28,21 +28,17 @@ class ConnectionWrapper extends Connection
         }
 
         try {
-            if ($params) {
-                list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
 
-                $stmt = $this->_conn->prepare($query);
+            list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
 
-                if ($types) {
-                    $this->_bindTypedValues($stmt, $params, $types);
-                    $stmt->execute();
-                } else {
-                    $stmt->execute($params);
-                }
-            } else {
-                $stmt = $this->_conn->query($query);
-            }
-        } catch (\Exception $ex) {
+            $preparedData = $this->_conn->prepare($query);
+
+            $strictValues = \Cassandra\Request\Request::strictTypeValues($params, $preparedData['metadata']['columns']);
+            $stmt = $this->_conn->executeSync($preparedData['id'], $strictValues);
+            $stmt->setMetadata($preparedData['result_metadata']);
+
+        }
+        catch (\Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 

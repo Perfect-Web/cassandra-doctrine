@@ -6,15 +6,13 @@ use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Query\Expr\Func;
 use Doctrine\ORM\Query\Expr\Comparison;
-use Doctrine\ORM\AbstractQuery;
+use PerfectWeb\Cassandra\DoctrineHydrators\CassandraHydrator;
 use PerfectWeb\Cassandra\ORM\Query\Expr\Andx;
 
 trait EntityRepositoryTrait
 {
 
-	protected $_defaultHydrator = AbstractQuery::HYDRATE_OBJECT;
-
-	/*protected $_hydrator = null;*/
+	protected $_defaultHydrator = CassandraHydrator::CassandraHydrator;
 
 	/**
 	 * @param array $criteria
@@ -101,7 +99,7 @@ trait EntityRepositoryTrait
 						  ->createNativeQuery($cql.' allow filtering', $rsm)
 						  ->setParameters($params);
 
-			$hydrator = !is_null($this->_hydrator) ? $this->_hydrator : $this->_defaultHydrator;
+			$hydrator = !is_null(@$this->_hydrator) ? $this->_hydrator : $this->_defaultHydrator;
 
 			$result = array_merge(
 				$result,
