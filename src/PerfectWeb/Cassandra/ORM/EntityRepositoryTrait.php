@@ -13,7 +13,8 @@ trait EntityRepositoryTrait
 {
 
 	protected $_defaultHydrator = AbstractQuery::HYDRATE_OBJECT;
-	protected $_hydrator = null;
+
+	/*protected $_hydrator = null;*/
 
 	/**
 	 * @param array $criteria
@@ -35,7 +36,9 @@ trait EntityRepositoryTrait
 
         foreach ($criteria as $column => &$value) {
 
-	        if (!is_object($value)) $params[$column] = $value;
+	        if (!is_object($value)) {
+                $params[$column] = $value;
+            }
 
 	        if (!$innerBubble && ($value instanceof Func) && strpos($value->getName(), ' IN') !== false) {
 		        $lengths = 0;
@@ -97,7 +100,6 @@ trait EntityRepositoryTrait
 			$query = $this->getEntityManager()
 						  ->createNativeQuery($cql.' allow filtering', $rsm)
 						  ->setParameters($params);
-
 
 			$hydrator = !is_null($this->_hydrator) ? $this->_hydrator : $this->_defaultHydrator;
 

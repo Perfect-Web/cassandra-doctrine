@@ -4,6 +4,9 @@ namespace PerfectWeb\Cassandra\PDOCassandra;
 
 use Cassandra\Connection as CassandraConnection;
 use Doctrine\DBAL\Connection as DoctrineConnection;
+use PerfectWeb\Cassandra\Platform\CassandraPlatform;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\SQLParserUtils;
 
 class Connection extends DoctrineConnection
 {
@@ -14,17 +17,21 @@ class Connection extends DoctrineConnection
      */
     function __construct($nodes, $keyspace)
     {
-        return new CassandraConnection($nodes, $keyspace);
+        $this->_conn = new CassandraConnection($nodes, $keyspace);
+        return $this->_conn;
     }
 
-    public function connect()
-    {
-        return true;
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function prepare($statement)
     {
+        return $this->_conn->prepare($statement);
+    }
 
+    public function getDatabasePlatform()
+    {
+        return new CassandraPlatform();
     }
 
 }
