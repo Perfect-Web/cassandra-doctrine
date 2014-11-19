@@ -14,6 +14,14 @@ class ConnectionWrapper extends Connection
     /**
      * {@inheritdoc}
      */
+    public function executeUpdate($query, array $params = array(), array $types = array())
+    {
+        return call_user_func_array([$this, 'executeQuery'], func_get_args());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
 
@@ -57,7 +65,58 @@ class ConnectionWrapper extends Connection
     public function quote($input, $type = null)
     {
         $this->connect();
-        return \PDO::quote($input, $type=\PDO::PARAM_STR);
+        return "'".addslashes($input)."'";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function exec($statement)
+    {
+
+        $this->connect();
+
+        $logger = $this->_config->getSQLLogger();
+        if ($logger) {
+            $logger->startQuery($statement);
+        }
+
+        try {
+            $this->executeQuery($statement);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+        }
+
+        if ($logger) {
+            $logger->stopQuery();
+        }
+
+        return 1;
+
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function beginTransaction()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepare($statement)
+    {
+        $this->connect();
+
+        try {
+            $stmt = new Statement($statement, $this);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+        }
+
+        return $stmt;
     }
 
 }
