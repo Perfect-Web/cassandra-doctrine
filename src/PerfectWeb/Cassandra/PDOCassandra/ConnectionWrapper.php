@@ -16,6 +16,7 @@ class ConnectionWrapper extends Connection
      */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
+
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
         }
@@ -48,6 +49,15 @@ class ConnectionWrapper extends Connection
 
         return $stmt;
 
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quote($input, $type = null)
+    {
+        $this->connect();
+        return \PDO::quote($input, $type=\PDO::PARAM_STR);
     }
 
 }

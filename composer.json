@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "duoshuo/php-cassandra": "dev-master"
+        "duoshuo/php-cassandra": "dev-master",
+        "zendframework/zendframework": "dev-master"
     },
     "autoload": {
         "psr-0": {
