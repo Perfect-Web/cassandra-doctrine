@@ -8,22 +8,23 @@
 
 namespace PerfectWeb\Cassandra\PDOCassandra;
 
-use Doctrine\DBAL\Statement as DoctrineStatement;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;
+use Cassandra\Request\Request;
+use Cassandra\Type;
 
 class Statement extends MysqliStatement
 {
 
+    private $_stmtPrepared = null;
+
     /**
-     * @param $conn
-     * @param string  $prepareString
-     *
-     * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * {@inheritdoc}
      */
     public function __construct($conn, $prepareString)
     {
-        return call_user_func_array([$this, '__construct'], func_get_args());
+        $this->_conn = $conn;
+        $this->_stmt = $prepareString;
+        $this->_stmtPrepared = $this->_conn->prepare($prepareString);
     }
 
     /**
@@ -37,51 +38,39 @@ class Statement extends MysqliStatement
     /**
      * {@inheritdoc}
      */
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function execute($params = null)
     {
-        if (null !== $this->_bindedValues) {
-            if (null !== $params) {
-                if ( ! $this->_bindValues($params)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
-                }
-            } else {
-                if (!call_user_func_array(array($this->_stmt, 'bind_param'), array($this->types) + $this->_bindedValues)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-                }
-            }
+        return $this->_conn->executeSync(
+            $this->_stmtPrepared['id'],
+            Request::strictTypeValues(
+                is_null($params) ? $this->_bindedValues : $params,
+                $this->_stmtPrepared['metadata']['columns']
+            )
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindValue($param, $value, $type = null)
+    {
+
+        // we need to decrement the param because of the persister that starts the index with 1 rather than 0
+        if (is_numeric($param)) {
+            $param--;
         }
 
-        if ( ! $this->_stmt->execute()) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-        }
-
-        if (null === $this->_columnNames) {
-            $meta = $this->_stmt->result_metadata();
-            if (false !== $meta) {
-                // We have a result.
-                $this->_stmt->store_result();
-
-                $columnNames = array();
-                foreach ($meta->fetch_fields() as $col) {
-                    $columnNames[] = $col->name;
-                }
-                $meta->free();
-
-                $this->_columnNames = $columnNames;
-                $this->_rowBindedValues = array_fill(0, count($columnNames), NULL);
-
-                $refs = array();
-                foreach ($this->_rowBindedValues as $key => &$value) {
-                    $refs[$key] =& $value;
-                }
-
-                if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
-                }
-            } else {
-                $this->_columnNames = false;
-            }
-        }
+        $this->_values[$param] = $value;
+        $this->_bindedValues[$param] =& $this->_values[$param];
+        $this->types[$param - 1] = $type;
 
         return true;
     }

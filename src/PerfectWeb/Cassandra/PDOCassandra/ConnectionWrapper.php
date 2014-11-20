@@ -100,7 +100,7 @@ class ConnectionWrapper extends Connection
      */
     public function beginTransaction()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -109,14 +109,19 @@ class ConnectionWrapper extends Connection
     public function prepare($statement)
     {
         $this->connect();
-
-        try {
-            $stmt = new Statement($statement, $this);
-        } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
-        }
-
-        return $stmt;
+        return new Statement($this->_conn, $statement);
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function rollback()
+    {
+        return true;
+    }
+
+    public function commit()
+    {
+        return true;
+    }
 }
