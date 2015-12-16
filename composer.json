@@ -11,8 +11,8 @@
     ],
     "require": {
         "php": ">=5.4",
-        "doctrine/doctrine-module": "dev-master",
-        "doctrine/common": "dev-master",
+        "doctrine/doctrine-module": "*",
+        "doctrine/common": "*",
         "doctrine/doctrine-orm-module": "*",
         "duoshuo/php-cassandra": "dev-master"
     },
